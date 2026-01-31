@@ -1,0 +1,1012 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sip & Co | Premium Coffee Experience</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+
+    <style>
+        :root {
+            --c-cream: #F5E6D3;
+            --c-coffee-dark: #2C1810;
+            --c-coffee-med: #4B3621;
+            --c-caramel: #D4A373;
+            --c-matcha: #8A9A5B;
+            --c-berry: #B85C5C;
+            --c-dragon: #D64161;
+            --c-gold: #C5A059;
+            --font-head: 'Playfair Display', serif;
+            --font-body: 'Lato', sans-serif;
+            --bottle-ratio: 2/3; /* Consistent Aspect Ratio 3:4 roughly */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--c-cream);
+            color: var(--c-coffee-dark);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            width: 100vw;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-head);
+            font-weight: 400;
+        }
+
+        /* --- IMAGES & RATIOS (CHANGE 3) --- */
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        /* Global Class for Aspect Ratio Enforcement */
+        .ratio-img {
+            aspect-ratio: 0.66; /* 2:3 Portrait Ratio */
+            object-fit: contain;
+            width: 100%;
+            height: auto;
+        }
+
+        /* --- LOADER --- */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--c-coffee-dark);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-logo-container {
+            width: 150px;
+            height: 150px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 50%;
+            border: 2px solid var(--c-gold);
+        }
+
+        .loader-liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(to top, var(--c-coffee-med), var(--c-caramel));
+            transition: height 0.1s linear;
+        }
+
+        .loader-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--c-cream);
+            font-family: var(--font-head);
+            font-size: 1.5rem;
+            z-index: 2;
+            mix-blend-mode: difference;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            mix-blend-mode: hard-light;
+        }
+
+        .nav-logo {
+            font-family: var(--font-head);
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--c-coffee-dark);
+        }
+
+        .nav-links button {
+            background: none;
+            border: none;
+            font-family: var(--font-body);
+            font-weight: 700;
+            margin-left: 30px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--c-coffee-dark);
+            position: relative;
+        }
+
+        .nav-links button::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: var(--c-coffee-dark);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links button:hover::after {
+            width: 100%;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
+            width: 100%;
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(12, 1fr);
+            padding: 100px 5vw;
+            /* overflow: hidden; Removed to allow bottle to travel out */
+            z-index: 10;
+        }
+
+        .hero-bg-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 15vw;
+            opacity: 0.05;
+            font-family: var(--font-head);
+            white-space: nowrap;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bottle-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            will-change: transform;
+        }
+
+        .bottle-img {
+            height: 400px; 
+            max-width: 100%;
+            border-radius: 20px;
+            box-shadow: 10px 20px 30px rgba(0,0,0,0.2);
+            transform-style: preserve-3d;
+            filter: brightness(1.1) contrast(1.1);
+        }
+
+        /* Bottle Positioning Desktop */
+        #b-matcha { grid-column: 2 / 5; grid-row: 2 / 7; transform: rotate(-5deg); }
+        #b-dragon { grid-column: 9 / 12; grid-row: 3 / 8; transform: rotate(5deg); }
+        #b-straw { grid-column: 2 / 5; grid-row: 8 / 12; transform: rotate(3deg); }
+        
+        /* THE TRAVELER BOTTLE (Change 1) */
+        #b-caramel { 
+            grid-column: 8 / 11; 
+            grid-row: 8 / 12; 
+            transform: rotate(-4deg);
+            z-index: 50; /* Higher Z to float over next section */
+            position: relative; 
+        }
+
+        .hero-quote {
+            position: absolute;
+            z-index: 5;
+            font-family: var(--font-head);
+            font-style: italic;
+            font-size: 1.5rem;
+            color: var(--c-coffee-med);
+            max-width: 200px;
+        }
+
+        .q1 { top: 15%; left: 45%; }
+        .q2 { bottom: 20%; right: 10%; text-align: right; }
+
+        /* --- POETIC TRANSITION (Change 1 Target) --- */
+        .poetic {
+            height: 100vh;
+            width: 100%;
+            background: var(--c-coffee-dark);
+            color: var(--c-cream);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            z-index: 5; /* Lower than hero bottle */
+        }
+
+        .poetic-text {
+            font-size: 4vw;
+            line-height: 1.2;
+            text-align: center;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        .poetic-line {
+            display: block;
+        }
+
+        /* --- THE ELITE COLLECTION --- */
+        .elite-collection {
+            padding: 100px 0;
+            background: linear-gradient(to bottom, var(--c-coffee-dark), var(--c-coffee-med));
+            overflow: hidden;
+            position: relative;
+        }
+
+        .elite-header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .elite-title {
+            font-size: 3rem;
+            color: var(--c-gold);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #C5A059, #F5E6D3, #C5A059);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        .slider-container {
+            display: flex;
+            width: 400%; 
+            height: 70vh;
+            align-items: center;
+        }
+
+        .slide {
+            width: 100vw;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide-img {
+            /* Ratio handled by class .ratio-img */
+            height: 60%;
+            border-radius: 500px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .slide-info {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--c-cream);
+        }
+
+        .slide-info h3 { font-size: 2.5rem; margin-bottom: 10px; }
+        .slide-info p { font-family: var(--font-body); opacity: 0.8; }
+
+        /* --- STORY SECTION --- */
+        .story {
+            background: var(--c-cream);
+            padding: 100px 10vw;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .story-content h2 {
+            font-size: 3.5rem;
+            color: var(--c-coffee-dark);
+            margin-bottom: 30px;
+            line-height: 1.1;
+        }
+
+        .story-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: var(--c-coffee-med);
+        }
+
+        .story-visual {
+            position: relative;
+            height: 600px;
+        }
+
+        .mag-img {
+            position: absolute;
+            width: 70%;
+            height: auto;
+            box-shadow: 10px 10px 0px var(--c-gold);
+            object-fit: cover;
+            aspect-ratio: 1/1; /* Square for magazine feel */
+        }
+
+        .m1 { top: 0; left: 0; z-index: 2; border: 5px solid white; }
+        .m2 { bottom: 0; right: 0; z-index: 1; filter: sepia(0.3); }
+
+        /* --- MENU PREVIEW --- */
+        .menu-preview {
+            background: var(--c-coffee-dark);
+            padding: 100px 5vw;
+            text-align: center;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .menu-item-card {
+            background: rgba(255,255,255,0.05);
+            padding: 40px 20px;
+            border-radius: 10px;
+            transition: transform 0.3s ease, background 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(197, 160, 89, 0.1);
+        }
+
+        .menu-item-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.1);
+            border-color: var(--c-gold);
+        }
+
+        .card-img {
+            height: 200px; /* Fixed height container */
+            width: 100%;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+        }
+
+        .card-title {
+            color: var(--c-cream);
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .card-desc {
+            color: var(--c-gold);
+            font-size: 0.9rem;
+            font-family: var(--font-body);
+        }
+
+        .cta-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: var(--c-gold);
+            color: var(--c-coffee-dark);
+            font-family: var(--font-head);
+            font-size: 1.2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            border: 2px solid var(--c-gold);
+        }
+
+        .cta-btn:hover {
+            background: transparent;
+            color: var(--c-gold);
+        }
+
+        /* --- FULL MENU OVERLAY --- */
+        #full-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--c-cream);
+            z-index: 200;
+            transform: translateY(100%);
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+            overflow-y: auto;
+            padding: 80px 10vw;
+        }
+
+        #full-menu.active {
+            transform: translateY(0);
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--c-coffee-dark);
+            background: none;
+            border: none;
+        }
+
+        .full-menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-top: 40px;
+        }
+
+        .fm-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding-bottom: 20px;
+        }
+
+        .fm-img {
+            width: 100px;
+            height: 150px; /* Enforcing ratio */
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .fm-details h4 { font-size: 1.5rem; margin-bottom: 5px; color: var(--c-coffee-dark); }
+        .fm-details p { font-family: var(--font-body); color: var(--c-coffee-med); }
+
+        /* --- CONNECT --- */
+        .connect {
+            background: var(--c-coffee-dark);
+            color: var(--c-cream);
+            padding: 80px 5vw;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .connect h2 { font-size: 3rem; margin-bottom: 30px; color: var(--c-gold); }
+        .connect-info {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            font-family: var(--font-body);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #1a0e0a;
+            color: rgba(245, 230, 211, 0.5);
+            padding: 40px;
+            text-align: center;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+        }
+
+        /* --- MOBILE RESPONSIVE FIXES (CHANGE 2) --- */
+        @media (max-width: 1024px) {
+             .hero-bg-text { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            /* General */
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 2rem; }
+            
+            nav { padding: 20px; }
+
+            /* Hero Stack */
+            .hero {
+                display: flex;
+                flex-direction: column;
+                height: auto;
+                padding-top: 120px;
+                gap: 50px;
+                overflow: visible; /* Important for scrolltrigger pinned elements not to clip */
+            }
+
+            .bottle-container {
+                width: 100%;
+                grid-column: auto !important;
+                grid-row: auto !important;
+                transform: none !important;
+            }
+
+            .bottle-img {
+                height: 300px;
+            }
+
+            .hero-quote {
+                position: static;
+                text-align: center;
+                margin: 20px 0;
+                font-size: 1.2rem;
+                max-width: 100%;
+            }
+
+            /* Fix Poetic Overlap */
+            .poetic {
+                height: 80vh;
+                padding: 40px 0;
+            }
+            .poetic-text { font-size: 1.5rem; }
+
+            /* Fix Elite Slider */
+            .elite-collection {
+                padding: 50px 0;
+            }
+            .slider-container {
+                width: 400%; /* Keep scroll mechanism but visual stack maybe? No, keep swipe */
+            }
+            .slide-img {
+                height: 40%;
+            }
+
+            /* Story Stack */
+            .story {
+                grid-template-columns: 1fr;
+                padding: 50px 5vw;
+            }
+            .story-visual {
+                height: 300px;
+                margin-top: 30px;
+            }
+
+            /* Menu Grid */
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            .menu-item-card {
+                margin-bottom: 20px;
+            }
+
+            /* Full Menu */
+            .full-menu-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            /* Connect Stack */
+            .connect-info {
+                flex-direction: column;
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="loader-logo-container">
+            <div class="loader-liquid"></div>
+            <div class="loader-text">SIP & CO</div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-logo">Sip & Co.</div>
+        <div class="nav-links">
+            <button onclick="toggleMenu()">Menu</button>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-bg-text">PURE BREW</div>
+        
+        <div class="bottle-container" id="b-matcha">
+            <img src="Picsart_26-01-16_11-38-28-707" alt="Matcha" class="bottle-img ratio-img">
+        </div>
+        
+        <div class="hero-quote q1">"Awaken your senses with nature's finest roast."</div>
+
+        <div class="bottle-container" id="b-dragon">
+            <img src="Picsart_26-01-16_11-36-58-522" alt="Iced Coffee" class="bottle-img ratio-img">
+        </div>
+
+        <div class="bottle-container" id="b-straw">
+            <img src="Picsart_26-01-11_20-17-25-633" alt="Latte" class="bottle-img ratio-img">
+        </div>
+
+        <div class="bottle-container" id="b-caramel">
+            <img src="Picsart_26-01-16_11-39-22-897" alt="Cold Brew" class="bottle-img ratio-img">
+        </div>
+
+        <div class="hero-quote q2">"Crafted for the bold, sipped by the elite."</div>
+    </header>
+
+    <section class="poetic">
+        <div class="poetic-text">
+            <span class="poetic-line">Brewed with passion,</span>
+            <span class="poetic-line">Served with grace.</span>
+            <span class="poetic-line" style="color:var(--c-gold)">Your daily ritual,</span>
+            <span class="poetic-line">In your favorite place.</span>
+        </div>
+    </section>
+
+    <section class="elite-collection">
+        <div class="elite-header">
+            <h2 class="elite-title">The Elite Collection</h2>
+            <p style="color: var(--c-cream); letter-spacing: 2px;">SWIPE TO EXPLORE</p>
+        </div>
+        
+        <div class="slider-container">
+            <div class="slide">
+                <img src="Picsart_26-01-16_11-39-22-897" class="slide-img ratio-img" alt="Matcha">
+                <div class="slide-info">
+                    <h3>Brown Sugar Matcha</h3>
+                    <p>Earthy notes meets caramelized sweetness.</p>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="Picsart_26-01-11_20-16-56-452" class="slide-img ratio-img" alt="Dragon">
+                <div class="slide-info">
+                    <h3>Velvet Cold Brew</h3>
+                    <p>Steeped for 24 hours for maximum smoothness.</p>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="Picsart_26-01-16_11-44-08-999" class="slide-img ratio-img" alt="Straw">
+                <div class="slide-info">
+                    <h3>Strawberry Latte</h3>
+                    <p>Real fruit infusion with premium arabica.</p>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="Picsart_26-01-16_11-43-12-386" class="slide-img ratio-img" alt="Caramel">
+                <div class="slide-info">
+                    <h3>Caramel Silk</h3>
+                    <p>A luxurious texture that melts in your mouth.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="story">
+        <div class="story-content">
+            <h2>Not Just Coffee.<br>A Masterpiece.</h2>
+            <p>At Sip & Co, we don't just brew; we curate. Every bean is hand-selected from the highest altitude farms in Ethiopia and Colombia, ensuring a profile that is as complex as it is comforting.</p>
+            <p>We believe in the art of slow living. Our cold brews are steeped for a full day, our matchas are whisked by hand, and our flavors are derived from real, organic ingredients. No syrups, no shortcuts.</p>
+        </div>
+        <div class="story-visual">
+            <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=800" class="mag-img m1" alt="Coffee Pour">
+            <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&q=80&w=800" class="mag-img m2" alt="Coffee Beans">
+        </div>
+    </section>
+
+    <section class="menu-preview">
+        <h2 style="color:var(--c-gold); font-size: 2.5rem; margin-bottom: 20px;">Curated For You</h2>
+        <div class="menu-grid">
+            <div class="menu-item-card">
+                <img src="https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&q=80&w=300" class="card-img ratio-img" alt="Drink">
+                <h3 class="card-title">Matcha Supreme</h3>
+                <p class="card-desc">Ceremonial Grade</p>
+            </div>
+            <div class="menu-item-card">
+                <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&q=80&w=300" class="card-img ratio-img" alt="Drink">
+                <h3 class="card-title">Midnight Brew</h3>
+                <p class="card-desc">Dark & Stormy</p>
+            </div>
+            <div class="menu-item-card">
+                <img src="https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&q=80&w=300" class="card-img ratio-img" alt="Drink">
+                <h3 class="card-title">Berry Bliss</h3>
+                <p class="card-desc">Sweet & Tart</p>
+            </div>
+            <div class="menu-item-card">
+                <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&q=80&w=300" class="card-img ratio-img" alt="Drink">
+                <h3 class="card-title">Golden Latte</h3>
+                <p class="card-desc">Turmeric Blend</p>
+            </div>
+            <div class="menu-item-card">
+                <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=300" class="card-img ratio-img" alt="Drink">
+                <h3 class="card-title">Classic Nitro</h3>
+                <p class="card-desc">Creamy Texture</p>
+            </div>
+            <div class="menu-item-card">
+                <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&q=80&w=300" class="card-img ratio-img" alt="Drink">
+                <h3 class="card-title">Vanilla Bean</h3>
+                <p class="card-desc">Madagascar Vanilla</p>
+            </div>
+        </div>
+        <a href="#" onclick="toggleMenu(); return false;" class="cta-btn">Explore Full Menu</a>
+    </section>
+
+    <section class="connect">
+        <h2>Join The Ritual</h2>
+        <div class="connect-info">
+            <div>
+                <h4>Visit Us</h4>
+                <p>128 Fifth Ave, NYC</p>
+            </div>
+            <div>
+                <h4>Contact</h4>
+                <p>hello@sipandco.com</p>
+            </div>
+            <div>
+                <h4>Social</h4>
+                <p>@sipandco</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Sip & Co. All Rights Reserved. Designed for Coffee Lovers.</p>
+    </footer>
+
+    <div id="full-menu">
+        <button class="close-menu" onclick="toggleMenu()">&times;</button>
+        <h2 style="font-size: 3rem; text-align: center; color: var(--c-coffee-dark);">The Full Menu</h2>
+        <div class="full-menu-grid">
+            <div class="fm-item">
+                <img src="https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&q=80&w=200" class="fm-img ratio-img" alt="Item">
+                <div class="fm-details">
+                    <h4>Kyoto Matcha</h4>
+                    <p>Imported ceremonial matcha, whisked with oat milk and honey.</p>
+                </div>
+            </div>
+            <div class="fm-item">
+                <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&q=80&w=200" class="fm-img ratio-img" alt="Item">
+                <div class="fm-details">
+                    <h4>Espresso Tonic</h4>
+                    <p>Double shot poured over tonic water with a slice of blood orange.</p>
+                </div>
+            </div>
+            <div class="fm-item">
+                <img src="https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&q=80&w=200" class="fm-img ratio-img" alt="Item">
+                <div class="fm-details">
+                    <h4>Rose Latte</h4>
+                    <p>Infused with rose water and topped with dried petals.</p>
+                </div>
+            </div>
+            <div class="fm-item">
+                <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&q=80&w=200" class="fm-img ratio-img" alt="Item">
+                <div class="fm-details">
+                    <h4>Salted Caramel</h4>
+                    <p>House-made caramel sauce with a pinch of sea salt.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+        // --- LOADER ANIMATION ---
+        window.addEventListener('load', () => {
+            const tl = gsap.timeline();
+
+            tl.to('.loader-liquid', {
+                height: '100%',
+                duration: 1.5,
+                ease: 'power2.inOut'
+            })
+            .to('#loader', {
+                y: '-100%',
+                duration: 1,
+                ease: 'expo.inOut',
+                delay: 0.2
+            })
+            .from('.hero-bg-text', {
+                opacity: 0,
+                scale: 0.8,
+                duration: 1.5
+            }, "-=0.5")
+            .from('.bottle-container', {
+                y: 100,
+                opacity: 0,
+                stagger: 0.2,
+                duration: 1.2,
+                ease: 'back.out(1.7)'
+            }, "-=1");
+        });
+
+        // --- MATCHMEDIA FOR RESPONSIVE GSAP (CHANGE 2) ---
+        let mm = gsap.matchMedia();
+
+        mm.add("(min-width: 769px)", () => {
+            // DESKTOP: Complex Parallax + Flying Bottle
+
+            // 1. General Hero Parallax (excluding the traveler)
+            gsap.to('#b-matcha, #b-dragon, #b-straw', {
+                scrollTrigger: {
+                    trigger: '.hero',
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: 1
+                },
+                y: -100,
+                rotation: (i) => i % 2 === 0 ? 5 : -5,
+                ease: 'none'
+            });
+
+            // 2. THE TRAVELER BOTTLE TRANSITION (CHANGE 1)
+            // Moves from Hero Grid -> Center of Poetic Section
+            // We use absolute Y calculations to land it visually in the center of the next section
+            
+            gsap.to('#b-caramel', {
+                scrollTrigger: {
+                    trigger: '.hero',
+                    start: 'top top', 
+                    end: 'bottom top', // Finishes transition when Hero is out of view
+                    scrub: 1.5, // Heavier scrub for weight
+                },
+                y: () => window.innerHeight * 1.1, // Move down by roughly 1 viewport + centering offset
+                xPercent: -50, // Center horizontally if grid pushed it right
+                left: '50%', // Force horizontal centering relative to viewport logic if needed
+                rotation: 360, // Full spin
+                scale: 1.2,
+                ease: "power2.inOut",
+                onUpdate: function() {
+                    // Dynamic centering fix during scroll if needed
+                    // Using CSS Grid in hero makes precise pixel landing tricky, 
+                    // but the Y-translation handles the vertical drop nicely.
+                }
+            });
+
+            // 3. Poetic Text Reveal
+            gsap.from('.poetic-line', {
+                scrollTrigger: {
+                    trigger: '.poetic',
+                    start: 'top 40%',
+                    end: 'bottom bottom',
+                    scrub: 1
+                },
+                y: 50,
+                opacity: 0,
+                stagger: 0.2
+            });
+
+            // 4. Horizontal Slider
+            const sections = gsap.utils.toArray('.slide');
+            gsap.to(sections, {
+                xPercent: -100 * (sections.length - 1),
+                ease: "none",
+                scrollTrigger: {
+                    trigger: ".elite-collection",
+                    pin: true,
+                    scrub: 1,
+                    snap: 1 / (sections.length - 1),
+                    end: "+=3000"
+                }
+            });
+        });
+
+        mm.add("(max-width: 768px)", () => {
+            // MOBILE: Reduced Motion, Vertical Stacking
+
+            // Simple fade out for hero elements
+            gsap.to('.bottle-container', {
+                scrollTrigger: {
+                    trigger: '.hero',
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: 1
+                },
+                opacity: 0.5,
+                y: -50
+            });
+
+            // Bottle does NOT fly across sections on mobile (too risky for overlap)
+            // Just animate it slightly within its container
+            gsap.to('#b-caramel', {
+                scrollTrigger: {
+                    trigger: '.hero',
+                    scrub: 1
+                },
+                rotation: 15
+            });
+
+            // Poetic text simple fade
+            gsap.from('.poetic-line', {
+                scrollTrigger: {
+                    trigger: '.poetic',
+                    start: 'top 80%'
+                },
+                opacity: 0,
+                y: 20,
+                stagger: 0.1,
+                duration: 0.8
+            });
+
+            // Horizontal scroll for Elite Collection (Mobile - Native Scroll or simplified GSAP)
+            // We will let the user swipe naturally horizontally, but we pinned it in CSS structure
+            // Let's enable the GSAP pin but with less distance to make it snappier
+            const sections = gsap.utils.toArray('.slide');
+            gsap.to(sections, {
+                xPercent: -100 * (sections.length - 1),
+                ease: "none",
+                scrollTrigger: {
+                    trigger: ".elite-collection",
+                    pin: true,
+                    scrub: 1,
+                    end: "+=1500" // Shorter scroll distance for mobile
+                }
+            });
+        });
+
+        // --- GLOBAL ANIMATIONS (Both) ---
+        
+        // Story Images Parallax
+        gsap.to('.m1', {
+            scrollTrigger: {
+                trigger: '.story',
+                start: 'top bottom',
+                scrub: 1
+            },
+            y: -50
+        });
+        
+        gsap.to('.m2', {
+            scrollTrigger: {
+                trigger: '.story',
+                start: 'top bottom',
+                scrub: 1
+            },
+            y: 50
+        });
+
+        // Menu Hover Tilt (JS Helper)
+        document.querySelectorAll('.menu-item-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                gsap.to(card, {
+                    rotationY: (x - rect.width / 2) / 10,
+                    rotationX: -(y - rect.height / 2) / 10,
+                    duration: 0.5
+                });
+            });
+
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card, {
+                    rotationY: 0,
+                    rotationX: 0,
+                    duration: 0.5
+                });
+            });
+        });
+
+        // Full Menu Toggle
+        function toggleMenu() {
+            const menu = document.getElementById('full-menu');
+            menu.classList.toggle('active');
+            
+            if(menu.classList.contains('active')) {
+                gsap.from('.fm-item', {
+                    y: 30,
+                    opacity: 0,
+                    stagger: 0.1,
+                    delay: 0.3,
+                    duration: 0.8
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+
